@@ -75,8 +75,11 @@ def initMotors(pwm):
     return
 
 if __name__ == '__main__':
-
     motorChannel = defaultdict(int)
+    motorChannel['A'] = 0
+    motorChannel['B'] = 3
+    motorChannel['C'] = 2
+    motorChannel['D'] = 1
 
     pwm = Adafruit_PCA9685.PCA9685()
     pwm.set_pwm_freq(50)
@@ -90,26 +93,35 @@ if __name__ == '__main__':
     initMotors(pwm)
 
     # Data loop and motor commands
-    While True:
-        # Get IMU data
-        accel_xout = read_word_2c(0x3b)
-        accel_yout = read_word_2c(0x3d)
-        accel_zout = read_word_2c(0x3f)
+    try:
+        while True:
+            # Get IMU data
+            accel_xout = read_word_2c(0x3b)
+            accel_yout = read_word_2c(0x3d)
+            accel_zout = read_word_2c(0x3f)
 
-        accel_xout_scaled = accel_xout / 16384.0
-        accel_yout_scaled = accel_yout / 16384.0
-        accel_zout_scaled = accel_zout / 16384.0
+            accel_xout_scaled = accel_xout / 16384.0
+            accel_yout_scaled = accel_yout / 16384.0
+            accel_zout_scaled = accel_zout / 16384.0
 
-        # TODO Use Gyro data as well
-        xRotation = get_x_rotation(accel_xout_scaled, accel_yout_scaled, accel_zout_scaled)
-        yRotation = get_y_rotation(accel_xout_scaled, accel_yout_scaled, accel_zout_scaled)
+            # TODO Use Gyro data as well
+            xRotation = get_x_rotation(accel_xout_scaled, accel_yout_scaled, accel_zout_scaled)
+            yRotation = get_y_rotation(accel_xout_scaled, accel_yout_scaled, accel_zout_scaled)
 
-        # Set motors based on IMU data
-        motors = calculatePower(xRotation, yRotation)
+            # Set motors based on IMU data
+            motors = calculatePower(xRotation, yRotation)
 
-        # print(motors)
+            # print(motors)
 
-        pwm.set_pwm(motorChannel['A'], 0, int(calculateTicks(50, float(motors['A']))))
-        pwm.set_pwm(motorChannel['B'], 0, int(calculateTicks(50, float(motors['B']))))
-        pwm.set_pwm(motorChannel['C'], 0, int(calculateTicks(50, float(motors['C']))))
-        pwm.set_pwm(motorChannel['D'], 0, int(calculateTicks(50, float(motors['D']))))
+            pwm.set_pwm(motorChannel['A'], 0, int(calculateTicks(50, float(motors['A']))))
+            pwm.set_pwm(motorChannel['B'], 0, int(calculateTicks(50, float(motors['B']))))
+            pwm.set_pwm(motorChannel['C'], 0, int(calculateTicks(50, float(motors['C']))))
+            pwm.set_pwm(motorChannel['D'], 0, int(calculateTicks(50, float(motors['D']))))
+    except KeyboardInterrupt:
+        pass
+        print("Killing all motors!")
+        pwm.set_pwm(motorChannel['A'], 0, 0)
+        pwm.set_pwm(motorChannel['B'], 0, 0)
+        pwm.set_pwm(motorChannel['C'], 0, 0)
+        pwm.set_pwm(motorChannel['D'], 0, 0)
+        print("Killed all motors.")
