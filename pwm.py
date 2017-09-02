@@ -11,6 +11,7 @@ def calculateTicks(hz, pulseInMilliseconds):
 def testTiming(duration):
     for i in range(0,4):
         ticks = calculateTicks(50, 1.7)
+		# set_pwm(self, channel, on, off):
         pwm.set_pwm(i, 0, int(ticks))
 
     sleep(duration)
@@ -20,11 +21,6 @@ def testTiming(duration):
         pwm.set_pwm(i, 0, int(ticks))
 
 if __name__ == '__main__':
-    max = calculateTicks(50, 2)
-    min = calculateTicks(50, 1)
-    # print(max)
-    # print(min)
-
     pwm = Adafruit_PCA9685.PCA9685()
     pwm.set_pwm_freq(50)
     for i in range(0,4):
@@ -43,5 +39,3 @@ if __name__ == '__main__':
         pwm.set_pwm(1, 0, int(ticks))
         pwm.set_pwm(2, 0, int(ticks))
         pwm.set_pwm(3, 0, int(ticks))
-
-
