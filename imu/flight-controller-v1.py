@@ -66,6 +66,14 @@ def calculatePower(xAngle, yAngle):
 
     return motors
 
+def initMotors(pwm):
+    pwm.set_pwm(motorChannel['A'], 0, int(calculateTicks(50, 1))
+    pwm.set_pwm(motorChannel['B'], 0, int(calculateTicks(50, 1))
+    pwm.set_pwm(motorChannel['C'], 0, int(calculateTicks(50, 1))
+    pwm.set_pwm(motorChannel['D'], 0, int(calculateTicks(50, 1))
+    input("Press Enter to fly!")
+    return
+
 if __name__ == '__main__':
 
     motorChannel = defaultdict(int)
@@ -78,6 +86,8 @@ if __name__ == '__main__':
 
     # Now wake the 6050 up as it starts in sleep mode
     bus.write_byte_data(address, power_mgmt_1, 0)
+
+    initMotors(pwm)
 
     # Data loop and motor commands
     While True:
@@ -97,7 +107,7 @@ if __name__ == '__main__':
         # Set motors based on IMU data
         motors = calculatePower(xRotation, yRotation)
 
-        print(motors)
+        # print(motors)
 
         pwm.set_pwm(motorChannel['A'], 0, int(calculateTicks(50, float(motors['A']))))
         pwm.set_pwm(motorChannel['B'], 0, int(calculateTicks(50, float(motors['B']))))
