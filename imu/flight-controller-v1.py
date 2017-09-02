@@ -8,11 +8,6 @@ import math
 import Adafruit_PCA9685
 from collections import defaultdict
 
-
-# Power management registers
-power_mgmt_1 = 0x6b
-power_mgmt_2 = 0x6c
-
 def calculateTicks(hz, pulseInMilliseconds):
 	cycle = 1000 / hz
 	timePerTick = cycle / 4096
@@ -75,6 +70,11 @@ def initMotors(pwm):
     return
 
 if __name__ == '__main__':
+
+    # Power management registers
+    power_mgmt_1 = 0x6b
+    power_mgmt_2 = 0x6c
+
     motorChannel = defaultdict(int)
     motorChannel['A'] = 0
     motorChannel['B'] = 3
@@ -91,6 +91,8 @@ if __name__ == '__main__':
     bus.write_byte_data(address, power_mgmt_1, 0)
 
     initMotors(pwm)
+
+    logFile = open("flight-log.txt", "w")
 
     # Data loop and motor commands
     try:
@@ -111,12 +113,14 @@ if __name__ == '__main__':
             # Set motors based on IMU data
             motors = calculatePower(xRotation, yRotation)
 
-            # print(motors)
-
             pwm.set_pwm(motorChannel['A'], 0, int(calculateTicks(50, float(motors['A']))))
             pwm.set_pwm(motorChannel['B'], 0, int(calculateTicks(50, float(motors['B']))))
             pwm.set_pwm(motorChannel['C'], 0, int(calculateTicks(50, float(motors['C']))))
             pwm.set_pwm(motorChannel['D'], 0, int(calculateTicks(50, float(motors['D']))))
+
+            buf = "%d, %d\n" % (xRotation, yRotation)
+            logFile.write(buf)
+
     except KeyboardInterrupt:
         pass
         print("Killing all motors!")
@@ -124,4 +128,5 @@ if __name__ == '__main__':
         pwm.set_pwm(motorChannel['B'], 0, 0)
         pwm.set_pwm(motorChannel['C'], 0, 0)
         pwm.set_pwm(motorChannel['D'], 0, 0)
+        logFile.close()
         print("Killed all motors.")
