@@ -67,10 +67,10 @@ def calculatePower(xAngle, yAngle):
     return motors
 
 def initMotors(pwm):
-    pwm.set_pwm(motorChannel['A'], 0, int(calculateTicks(50, 1))
-    pwm.set_pwm(motorChannel['B'], 0, int(calculateTicks(50, 1))
-    pwm.set_pwm(motorChannel['C'], 0, int(calculateTicks(50, 1))
-    pwm.set_pwm(motorChannel['D'], 0, int(calculateTicks(50, 1))
+    pwm.set_pwm(motorChannel['A'], 0, int(calculateTicks(50, 1)))
+    pwm.set_pwm(motorChannel['B'], 0, int(calculateTicks(50, 1)))
+    pwm.set_pwm(motorChannel['C'], 0, int(calculateTicks(50, 1)))
+    pwm.set_pwm(motorChannel['D'], 0, int(calculateTicks(50, 1)))
     input("Press Enter to fly!")
     return
 
@@ -120,8 +120,8 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         pass
         print("Killing all motors!")
-        pwm.set_pwm(motorChannel['A'], 0, 0)
-        pwm.set_pwm(motorChannel['B'], 0, 0)
-        pwm.set_pwm(motorChannel['C'], 0, 0)
-        pwm.set_pwm(motorChannel['D'], 0, 0)
+        pwm.set_pwm(motorChannel['A'], 0, int(calculateTicks(50, 1)))
+        pwm.set_pwm(motorChannel['B'], 0, int(calculateTicks(50, 1)))
+        pwm.set_pwm(motorChannel['C'], 0, int(calculateTicks(50, 1)))
+        pwm.set_pwm(motorChannel['D'], 0, int(calculateTicks(50, 1)))
         print("Killed all motors.")
