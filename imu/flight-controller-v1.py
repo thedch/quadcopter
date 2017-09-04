@@ -129,4 +129,4 @@ if __name__ == '__main__':
         pwm.set_pwm(motorChannel['C'], 0, int(calculateTicks(50, 1)))
         pwm.set_pwm(motorChannel['D'], 0, int(calculateTicks(50, 1)))
         logFile.close()
-        print("Killed all motors.")
+        print("Killed all motors, closed log file.")

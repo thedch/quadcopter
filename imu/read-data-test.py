@@ -68,5 +68,5 @@ while True:
     #print("accel_yout: ", accel_yout, " scaled: ", accel_yout_scaled)
     #print("accel_zout: ", accel_zout, " scaled: ", accel_zout_scaled)
 
-    #print("x rotation: " , get_x_rotation(accel_xout_scaled, accel_yout_scaled, accel_zout_scaled))
+    print("x rotation: " , get_x_rotation(accel_xout_scaled, accel_yout_scaled, accel_zout_scaled))
     print("y rotation: " , get_y_rotation(accel_xout_scaled, accel_yout_scaled, accel_zout_scaled))
