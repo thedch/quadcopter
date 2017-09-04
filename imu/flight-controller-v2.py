@@ -9,15 +9,13 @@ from imu import IMU
 from motors import MotorController
 import signal
 
-motors = MotorController() # TODO Does this need to be global?
-imu = IMU() # TODO Does this need to be global?
+motors = MotorController()
+imu = IMU()
+logFile = open("flight-log.txt", "w")
 
 def main():
     # Power management registers
-    power_mgmt_1 = 0x6b
-    power_mgmt_2 = 0x6c
-
-    start_time = time.time()
+    power_mgmt_2 = 0x6c # TODO is this a useless line?
 
     K = 0.98
     K1 = 1 - K
@@ -36,17 +34,18 @@ def main():
     gyro_total_x = (last_x) - gyro_offset_x
     gyro_total_y = (last_y) - gyro_offset_y
 
-    logFile = open("flight-log.txt", "w")
+    start_time = time.time()
 
     # Data loop and motor commands
     while True:
-        hold(count, start_time, time_diff)
-        count += 1
-        print("Getting data...")
-        if count >= 300:
-            print(start_time - time.time())
+        # hold(counter, start_time, time_diff)
+        counter += 1
+        # print("Getting data...")
+        if counter >= 1000:
+            print(time.time() - start_time)
+            break
 
-        (gyro_scaled_x, gyro_scaled_y, gyro_scaled_z, accel_scaled_x, accel_scaled_y, accel_scaled_z) = read_all()
+        (gyro_scaled_x, gyro_scaled_y, gyro_scaled_z, accel_scaled_x, accel_scaled_y, accel_scaled_z) = imu.read_all()
 
         gyro_scaled_x -= gyro_offset_x
         gyro_scaled_y -= gyro_offset_y
@@ -57,8 +56,8 @@ def main():
         gyro_total_x += gyro_x_delta
         gyro_total_y += gyro_y_delta
 
-        rotation_x = get_x_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
-        rotation_y = get_y_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
+        rotation_x = imu.get_x_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
+        rotation_y = imu.get_y_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
 
         last_x = K * (last_x + gyro_x_delta) + (K1 * rotation_x)
         last_y = K * (last_y + gyro_y_delta) + (K1 * rotation_y)
@@ -66,8 +65,8 @@ def main():
         # Set motors based on IMU data
         motor_speed = motors.calculatePower(rotation_x, rotation_y) # TODO calculatePowerAndSetMotors?
         motors.set_motors(motor_speed['A'])
-
-        buf = "%d, %d\n" % (xRotation, yRotation)
+        
+        buf = "%d, %d\n" % (rotation_x, rotation_y)
         logFile.write(buf)
 
     # print "{0:.4f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} {6:.2f}".format( time.time() - now, (last_x), gyro_total_x, (last_x), (last_y), gyro_total_y, (last_y))
@@ -75,9 +74,9 @@ def main():
 
 def hold(count, start_time, time_diff):
     while True:
-        if (time.time() - start_time) >= (delay * count):
+        if (time.time() - start_time) >= (time_diff * count):
+            print (time.time() - start_time, ", ", count)
             return
-
 
 def signal_handler(signal, frame):
     motors.kill_motors()
@@ -88,5 +87,5 @@ def signal_handler(signal, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 if __name__ == '__main__':
-    input("Press Enter to fly!")
+    # input("Press Enter to fly!")
     main()
