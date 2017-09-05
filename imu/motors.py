@@ -13,21 +13,28 @@ class MotorController:
             'D': 1
         }
 
+        self.current_motor_power = {
+            'A': 1,
+            'B': 1,
+            'C': 1,
+            'D': 1
+        }
+
         self.pwm = Adafruit_PCA9685.PCA9685()
         self.freq = 50
         self.pwm.set_pwm_freq(self.freq)
         # TODO self.currentPower dict to pass into set_motors
 
-        self.set_motors() # Init motors to off
+        self.set_motors() # Initialize motors to off
 
-    def calculatePower(self, xAngle, yAngle):
+    def calculatePowerAndSetMotors(self, xAngle, yAngle):
         # Calculate relative desired motor power based on angle imbalance
         # Scale values to be -1 to 1
         xAngle = max(min(xAngle / 10, 1), -1)
         yAngle = max(min(yAngle / 10, 1), -1)
 
         # Set motor values based on average axis tilt
-        motors = {
+        new_motor_power = {
             'A': (yAngle - xAngle) / 2,
             'B': (yAngle + xAngle) / 2,
             'C': (yAngle - xAngle) / -2, # C and D are just A and B * (-1)
@@ -35,10 +42,14 @@ class MotorController:
         }
 
         # Calculate absolute motor power based on relative
-        for motor in motors:
-            motors[motor] = ((motors[motor] + 1) / 4) + 1.5 # TODO Clean this up
+        for motor in new_motor_power:
+            new_motor_power[motor] = ((new_motor_power[motor] + 1) / 4) + 1.5 # TODO Clean this up
 
-        return motors
+        for m in 'A B C D':
+            if sufficiently_different(current_motor_power[m], new_motor_power[m]):
+
+    def set_motor(self, channel, level): # Level should be between 1.0 and 2.0
+        self.pwm.set_pwm(self.channel[channel], 0, int(calcTicks(self.freq, level)))
 
     def set_motors(self, A=1, B=1, C=1, D=1): # TODO Pass in a dict instead?
         self.pwm.set_pwm(self.channel['A'], 0, int(calcTicks(self.freq, A)))
@@ -48,6 +59,12 @@ class MotorController:
 
     def kill_motors(self):
         self.set_motors() # Calling with no params defaults to off
+
+def sufficiently_different(c, r): # current, requested
+    if r > c * 1.02 or r < c * 0.98:
+        return True
+    return False
+
 
 def calcTicks(hz, pulseInMilliseconds):
 	cycle = 1000 / hz

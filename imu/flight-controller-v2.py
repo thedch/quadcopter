@@ -63,9 +63,9 @@ def main():
         last_y = K * (last_y + gyro_y_delta) + (K1 * rotation_y)
 
         # Set motors based on IMU data
-        motor_speed = motors.calculatePower(rotation_x, rotation_y) # TODO calculatePowerAndSetMotors?
-        motors.set_motors(motor_speed['A'])
-        
+        motor_speed = motors.calculatePower(rotation_x, rotation_y)
+        # motors.set_motors(motor_speed['A'])
+
         buf = "%d, %d\n" % (rotation_x, rotation_y)
         logFile.write(buf)
 
