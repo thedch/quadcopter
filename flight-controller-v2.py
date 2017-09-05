@@ -5,13 +5,13 @@
 import smbus
 import math
 import time
-from imu import IMU
-from motors import MotorController
+from imu.imu import IMU
+from motors.motors import MotorController
 import signal
 
 motors = MotorController()
 imu = IMU()
-logFile = open("flight-log.txt", "w")
+logFile = open("log.txt", "w")
 
 def main():
     # Power management registers
@@ -45,6 +45,7 @@ def main():
             print(time.time() - start_time, counter)
             break
 
+        # TODO: Put this all in a fxn
         (gyro_scaled_x, gyro_scaled_y, gyro_scaled_z, accel_scaled_x, accel_scaled_y, accel_scaled_z) = imu.read_all()
 
         gyro_scaled_x -= gyro_offset_x
@@ -65,7 +66,7 @@ def main():
         # Set motors based on IMU data
         motor_speed = motors.calculatePowerAndSetMotors(last_x, last_y)
 
-        buf = "%d: %d, %d | %d, %d\n" % (counter, rotation_x, rotation_y, last_x, last_y)
+        buf = "%d: aX %.2f, aY %.2f | lX %.2f, lY %.2f | gX %.2f, gY %.2f\n" % (counter, rotation_x, rotation_y, last_x, last_y, gyro_x_delta, gyro_y_delta)
         logFile.write(buf)
 
 def wait(count, start_time, time_diff):
