@@ -21,8 +21,9 @@ def main():
     K1 = 1 - K
 
     time_diff = 0.01 # Sample at 100 Hz
-    counter = 0
+    counter = 1
 
+    # Initial set up readings
     (gyro_scaled_x, gyro_scaled_y, gyro_scaled_z, accel_scaled_x, accel_scaled_y, accel_scaled_z) = imu.read_all()
 
     last_x = imu.get_x_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
@@ -38,10 +39,10 @@ def main():
 
     # Data loop and motor commands
     while True:
-        hold(counter, start_time, time_diff)
+        wait(counter, start_time, time_diff)
         counter += 1
         if counter >= 300:
-            print(time.time() - start_time)
+            print(time.time() - start_time, counter)
             break
 
         (gyro_scaled_x, gyro_scaled_y, gyro_scaled_z, accel_scaled_x, accel_scaled_y, accel_scaled_z) = imu.read_all()
@@ -64,22 +65,21 @@ def main():
         # Set motors based on IMU data
         motor_speed = motors.calculatePowerAndSetMotors(rotation_x, rotation_y)
 
-        buf = "%d, %d\n" % (rotation_x, rotation_y)
+        buf = "%d: %d, %d | %d, %d\n" % (counter, rotation_x, rotation_y, last_x, last_y)
         logFile.write(buf)
 
-    # print "{0:.4f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} {6:.2f}".format( time.time() - now, (last_x), gyro_total_x, (last_x), (last_y), gyro_total_y, (last_y))
-    # print "{0:.4f} {1:.2f} {2:.2f} {3:.2f} {4:.2f} {5:.2f} {6:.2f}".format( time.time() - now, (rotation_x), (gyro_total_x), (last_x), (rotation_y), (gyro_total_y), (last_y))
-
-def hold(count, start_time, time_diff):
+def wait(count, start_time, time_diff):
+    '''Used to force a set Hz sampling rate instead of as fast as possible. Will probably be removed eventually.'''
     while True:
         if (time.time() - start_time) >= (time_diff * count):
-            print (time.time() - start_time, ", ", count)
+            # print (time.time() - start_time, ",", count)
             return
 
 def signal_handler(signal, frame):
+    '''Stops all motors and closes log file when Ctrl-C is pressed'''
     motors.set_motors()
     logFile.close()
-    print("Killed all motors, closed log file.")
+    print("Stopped all motors, closed log file.")
     exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)

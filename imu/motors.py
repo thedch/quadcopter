@@ -3,6 +3,7 @@
 # Date: Sep 4 2017
 
 import Adafruit_PCA9685
+from collections import defaultdict
 
 class MotorController:
     def __init__(self):
@@ -13,19 +14,12 @@ class MotorController:
             'D': 1
         }
 
-        self.current_motor_power = { # TODO: default dict 
-            'A': 0,
-            'B': 0,
-            'C': 0,
-            'D': 0
-        }
+        self.current_motor_power = defaultdict(int)
 
         self.pwm = Adafruit_PCA9685.PCA9685()
         self.freq = 50
         self.pwm.set_pwm_freq(self.freq)
-        # TODO self.currentPower dict to pass into set_motors
 
-        print("Init motors")
         self.set_motors() # Initialize motors to off
 
     def calculatePowerAndSetMotors(self, xAngle, yAngle):
@@ -42,7 +36,7 @@ class MotorController:
             'D': (yAngle + xAngle) / -2,
         }
 
-        # Calculate absolute motor power based on relative
+        # Calculate absolute motor power based on relative (absolute needs to be between 1.5-2.0)
         for motor in new_motor_power:
             new_motor_power[motor] = ((new_motor_power[motor] + 1) / 4) + 1.5 # TODO Clean this up
 
@@ -53,7 +47,7 @@ class MotorController:
             print("Error in set motor, trying to set motor", channel, "to ", level)
             return
         if sufficiently_different(self.current_motor_power[channel], level):
-            print("Just set motor", channel, "to", level)
+            # print("Just set motor", channel, "to", level)
             self.pwm.set_pwm(self.channel[channel], 0, int(calcTicks(self.freq, level)))
             self.current_motor_power[channel] = level
 
