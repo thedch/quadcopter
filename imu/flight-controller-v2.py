@@ -38,10 +38,9 @@ def main():
 
     # Data loop and motor commands
     while True:
-        # hold(counter, start_time, time_diff)
+        hold(counter, start_time, time_diff)
         counter += 1
-        # print("Getting data...")
-        if counter >= 1000:
+        if counter >= 300:
             print(time.time() - start_time)
             break
 
@@ -86,5 +85,5 @@ def signal_handler(signal, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 if __name__ == '__main__':
-    # input("Press Enter to fly!")
+    input("Press Enter to fly!")
     main()

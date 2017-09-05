@@ -13,11 +13,11 @@ class MotorController:
             'D': 1
         }
 
-        self.current_motor_power = {
-            'A': 1,
-            'B': 1,
-            'C': 1,
-            'D': 1
+        self.current_motor_power = { # TODO: default dict 
+            'A': 0,
+            'B': 0,
+            'C': 0,
+            'D': 0
         }
 
         self.pwm = Adafruit_PCA9685.PCA9685()
@@ -25,6 +25,7 @@ class MotorController:
         self.pwm.set_pwm_freq(self.freq)
         # TODO self.currentPower dict to pass into set_motors
 
+        print("Init motors")
         self.set_motors() # Initialize motors to off
 
     def calculatePowerAndSetMotors(self, xAngle, yAngle):
@@ -47,21 +48,18 @@ class MotorController:
 
         self.set_motors(new_motor_power)
 
-    def set_motor(self, channel, level): # Level should be between 1.0 and 2.0
-        if not 1.0 < level < 2.0:
+    def set_motor(self, channel, level):
+        if not 1.0 <= level <= 2.0: # Level should be between 1.0 and 2.0
             print("Error in set motor, trying to set motor", channel, "to ", level)
             return
         if sufficiently_different(self.current_motor_power[channel], level):
+            print("Just set motor", channel, "to", level)
             self.pwm.set_pwm(self.channel[channel], 0, int(calcTicks(self.freq, level)))
             self.current_motor_power[channel] = level
 
-    def set_motors(self, power): # TODO Pass in a dict instead?
-        for channel in 'A B C D':
-            set_motor(channel, power[channel])
-        # set_motor('A', A) # TODO Loop this
-        # set_motor('B', B)
-        # set_motor('C', C)
-        # set_motor('D', D)
+    def set_motors(self, power={'A': 1, 'B': 1, 'C': 1, 'D': 1}):
+        for channel in 'ABCD':
+            self.set_motor(channel, power[channel])
 
 def sufficiently_different(c, r): # current, requested
     delta = 0.02 # 2% difference required
