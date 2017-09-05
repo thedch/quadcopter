@@ -63,8 +63,7 @@ def main():
         last_y = K * (last_y + gyro_y_delta) + (K1 * rotation_y)
 
         # Set motors based on IMU data
-        motor_speed = motors.calculatePower(rotation_x, rotation_y)
-        # motors.set_motors(motor_speed['A'])
+        motor_speed = motors.calculatePowerAndSetMotors(rotation_x, rotation_y)
 
         buf = "%d, %d\n" % (rotation_x, rotation_y)
         logFile.write(buf)
@@ -79,7 +78,7 @@ def hold(count, start_time, time_diff):
             return
 
 def signal_handler(signal, frame):
-    motors.kill_motors()
+    motors.set_motors()
     logFile.close()
     print("Killed all motors, closed log file.")
     exit(0)

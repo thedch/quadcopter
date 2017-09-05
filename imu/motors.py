@@ -45,26 +45,29 @@ class MotorController:
         for motor in new_motor_power:
             new_motor_power[motor] = ((new_motor_power[motor] + 1) / 4) + 1.5 # TODO Clean this up
 
-        for m in 'A B C D':
-            if sufficiently_different(current_motor_power[m], new_motor_power[m]):
+        self.set_motors(new_motor_power)
 
     def set_motor(self, channel, level): # Level should be between 1.0 and 2.0
-        self.pwm.set_pwm(self.channel[channel], 0, int(calcTicks(self.freq, level)))
+        if not 1.0 < level < 2.0:
+            print("Error in set motor, trying to set motor", channel, "to ", level)
+            return
+        if sufficiently_different(self.current_motor_power[channel], level):
+            self.pwm.set_pwm(self.channel[channel], 0, int(calcTicks(self.freq, level)))
+            self.current_motor_power[channel] = level
 
-    def set_motors(self, A=1, B=1, C=1, D=1): # TODO Pass in a dict instead?
-        self.pwm.set_pwm(self.channel['A'], 0, int(calcTicks(self.freq, A)))
-        self.pwm.set_pwm(self.channel['B'], 0, int(calcTicks(self.freq, B)))
-        self.pwm.set_pwm(self.channel['C'], 0, int(calcTicks(self.freq, C)))
-        self.pwm.set_pwm(self.channel['D'], 0, int(calcTicks(self.freq, D)))
-
-    def kill_motors(self):
-        self.set_motors() # Calling with no params defaults to off
+    def set_motors(self, power): # TODO Pass in a dict instead?
+        for channel in 'A B C D':
+            set_motor(channel, power[channel])
+        # set_motor('A', A) # TODO Loop this
+        # set_motor('B', B)
+        # set_motor('C', C)
+        # set_motor('D', D)
 
 def sufficiently_different(c, r): # current, requested
-    if r > c * 1.02 or r < c * 0.98:
+    delta = 0.02 # 2% difference required
+    if r > c * (1 + delta) or r < c * (1 - delta):
         return True
     return False
-
 
 def calcTicks(hz, pulseInMilliseconds):
 	cycle = 1000 / hz
