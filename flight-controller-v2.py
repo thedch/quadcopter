@@ -71,7 +71,7 @@ def main():
             buf = "count | time | rotX | rotY | lastX | lastY | gyroX | gyroY | motA | motB | motC | motD\n"
             logFile.write(buf)
 
-        buf = "%d %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f\n" % (counter, time.time() - start_time, rotation_x, rotation_y, last_x, last_y, gyro_x_delta, gyro_y_delta, motors.req_motor_power['A'], motors.req_motor_power['B'], motors.req_motor_power['C'], motors.req_motor_power['D'])
+        buf = "{:.0f} {:10.2f} {:6.2f} {:6.2f} {:7.2f} {:7.2f} {:7.2f} {:7.2f} {:6.2f} {:6.2f} {:6.2f} {:6.2f}\n".format(counter, time.time() - start_time, rotation_x, rotation_y, last_x, last_y, gyro_x_delta, gyro_y_delta, motors.req_motor_power['A'], motors.req_motor_power['B'], motors.req_motor_power['C'], motors.req_motor_power['D'])
         logFile.write(buf)
 
 def wait(count, start_time, time_diff):
