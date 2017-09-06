@@ -64,9 +64,14 @@ def main():
         last_y = K * (last_y + gyro_y_delta) + (K1 * rotation_y)
 
         # Set motors based on IMU data
-        motor_speed = motors.calculatePowerAndSetMotors(last_x, last_y)
+        motors.calculate_power(last_x, last_y)
+        motors.set_motors()
 
-        buf = "%d: aX %.2f, aY %.2f | lX %.2f, lY %.2f | gX %.2f, gY %.2f\n" % (counter, rotation_x, rotation_y, last_x, last_y, gyro_x_delta, gyro_y_delta)
+        if (counter % 15 == 0):
+            buf = "count | time | rotX | rotY | lastX | lastY | gyroX | gyroY | motA | motB | motC | motD\n"
+            logFile.write(buf)
+
+        buf = "%d %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f\n" % (counter, time.time() - start_time, rotation_x, rotation_y, last_x, last_y, gyro_x_delta, gyro_y_delta, motors.req_motor_power['A'], motors.req_motor_power['B'], motors.req_motor_power['C'], motors.req_motor_power['D'])
         logFile.write(buf)
 
 def wait(count, start_time, time_diff):
@@ -78,7 +83,7 @@ def wait(count, start_time, time_diff):
 
 def signal_handler(signal, frame):
     '''Stops all motors and closes log file when Ctrl-C is pressed'''
-    motors.set_motors()
+    motors.motors_off()
     logFile.close()
     print("Stopped all motors, closed log file.")
     exit(0)

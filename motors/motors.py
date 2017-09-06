@@ -15,14 +15,15 @@ class MotorController:
         }
 
         self.current_motor_power = defaultdict(int)
+        self.req_motor_power = defaultdict(int) # Requested motor power
 
         self.pwm = Adafruit_PCA9685.PCA9685()
         self.freq = 50
         self.pwm.set_pwm_freq(self.freq)
 
-        self.set_motors() # Initialize motors to off
+        self.motors_off() # Initialize motors to off
 
-    def calculatePowerAndSetMotors(self, xAngle, yAngle):
+    def calculate_power(self, xAngle, yAngle):
         # Calculate relative desired motor power based on angle imbalance
         # Scale values to be -1 to 1
         xAngle = max(min(xAngle / 10, 1), -1)
@@ -37,23 +38,25 @@ class MotorController:
         }
 
         # Calculate absolute motor power based on relative (absolute needs to be between 1.5-2.0)
-        for motor in new_motor_power:
-            new_motor_power[motor] = ((new_motor_power[motor] + 1) / 4) + 1.5 # TODO Clean this up
+        for channel in new_motor_power:
+            self.req_motor_power[channel] = ((new_motor_power[channel] + 1) / 4) + 1.5 # TODO Clean this up
 
-        self.set_motors(new_motor_power)
-
-    def set_motor(self, channel, level):
-        if not 1.0 <= level <= 2.0: # Level should be between 1.0 and 2.0
-            print("Error in set motor, trying to set motor", channel, "to ", level)
+    def set_motor(self, channel):
+        if not 1.0 <= self.req_motor_power[channel] <= 2.0: # Level should be between 1.0 and 2.0
+            print("Error in set motor, trying to set motor", channel, "to", self.req_motor_power[channel])
             return
-        if sufficiently_different(self.current_motor_power[channel], level):
-            # print("Just set motor", channel, "to", level)
-            self.pwm.set_pwm(self.channel[channel], 0, int(calcTicks(self.freq, level)))
-            self.current_motor_power[channel] = level
+        if sufficiently_different(self.current_motor_power[channel], self.req_motor_power[channel]):
+            self.pwm.set_pwm(self.channel[channel], 0, int(calcTicks(self.freq, self.req_motor_power[channel])))
+            self.current_motor_power[channel] = self.req_motor_power[channel]
 
-    def set_motors(self, power={'A': 1, 'B': 1, 'C': 1, 'D': 1}):
+    def set_motors(self):
         for channel in 'ABCD':
-            self.set_motor(channel, power[channel])
+            self.set_motor(channel)
+
+    def motors_off(self):
+        for channel in 'ABCD':
+            self.req_motor_power[channel] = 1.0
+        self.set_motors()
 
 def sufficiently_different(c, r): # current, requested
     delta = 0.02 # 2% difference required
