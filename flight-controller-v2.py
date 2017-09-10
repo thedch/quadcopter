@@ -17,6 +17,9 @@ def main():
     # Power management registers
     power_mgmt_2 = 0x6c # TODO is this a useless line?
 
+    header = ["count", "time", "rotX", "rotY", "lastX", "lastY", "gyroX", "gyroY", "motA", "motB", "motC", "motD"]
+    log_variables = [counter, time.time() - start_time, rotation_x, rotation_y, last_x, last_y, gyro_x_delta, gyro_y_delta, motors.req_motor_power['A'], motors.req_motor_power['B'], motors.req_motor_power['C'], motors.req_motor_power['D']]
+
     K = 0.98
     K1 = 1 - K
 
@@ -67,12 +70,10 @@ def main():
         motors.calculate_power(last_x, last_y)
         motors.set_motors()
 
+        # Log current data + header labels
+        logFile.write(format_row(log_variables))
         if (counter % 15 == 0):
-            buf = "count | time | rotX | rotY | lastX | lastY | gyroX | gyroY | motA | motB | motC | motD\n"
-            logFile.write(buf)
-
-        buf = "{:.0f} {:10.2f} {:6.2f} {:6.2f} {:7.2f} {:7.2f} {:7.2f} {:7.2f} {:6.2f} {:6.2f} {:6.2f} {:6.2f}\n".format(counter, time.time() - start_time, rotation_x, rotation_y, last_x, last_y, gyro_x_delta, gyro_y_delta, motors.req_motor_power['A'], motors.req_motor_power['B'], motors.req_motor_power['C'], motors.req_motor_power['D'])
-        logFile.write(buf)
+            logFile.write(format_row(header))
 
 def wait(count, start_time, time_diff):
     '''Used to force a set Hz sampling rate instead of as fast as possible. Will probably be removed eventually.'''
@@ -80,6 +81,18 @@ def wait(count, start_time, time_diff):
         if (time.time() - start_time) >= (time_diff * count):
             # print (time.time() - start_time, ",", count)
             return
+
+def format_row(row):
+    margin = 10
+    pretty_row = ''
+    if type(row[0]).__name__ == "str": # Could also do a try catch here
+        for item in row:
+            pretty_row += ("{item: >{margin}} ").format(item=item, margin=margin)
+    else:
+        for item in row:
+            pretty_row += ("{item: >{margin}.2f} ").format(item=item, margin=margin)
+    pretty_row += "\n" # Add a new line to the end of the row
+    return pretty_row
 
 def signal_handler(signal, frame):
     '''Stops all motors and closes log file when Ctrl-C is pressed'''
