@@ -18,7 +18,6 @@ def main():
     power_mgmt_2 = 0x6c # TODO is this a useless line?
 
     header = ["count", "time", "rotX", "rotY", "lastX", "lastY", "gyroX", "gyroY", "motA", "motB", "motC", "motD"]
-    log_variables = [counter, time.time() - start_time, rotation_x, rotation_y, last_x, last_y, gyro_x_delta, gyro_y_delta, motors.req_motor_power['A'], motors.req_motor_power['B'], motors.req_motor_power['C'], motors.req_motor_power['D']]
 
     K = 0.98
     K1 = 1 - K
@@ -71,6 +70,7 @@ def main():
         motors.set_motors()
 
         # Log current data + header labels
+        log_variables = [counter, time.time() - start_time, rotation_x, rotation_y, last_x, last_y, gyro_x_delta, gyro_y_delta, motors.req_motor_power['A'], motors.req_motor_power['B'], motors.req_motor_power['C'], motors.req_motor_power['D']]
         logFile.write(format_row(log_variables))
         if (counter % 15 == 0):
             logFile.write(format_row(header))
