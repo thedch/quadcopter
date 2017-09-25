@@ -23,7 +23,7 @@ def main():
     K1 = 1 - K
 
     time_diff = 0.01 # Sample at 100 Hz
-    counter = 1
+    counter = 0
 
     # Initial set up readings
     (gyro_scaled_x, gyro_scaled_y, gyro_scaled_z, accel_scaled_x, accel_scaled_y, accel_scaled_z) = imu.read_all()
@@ -62,6 +62,10 @@ def main():
         rotation_x = imu.get_x_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
         rotation_y = imu.get_y_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
 
+        # manually remove bias from IMU data -- this is pretty dumb
+        rotation_x = rotation_x - 3.0
+        rotation_y = rotation_y + 4.7
+
         last_x = K * (last_x + gyro_x_delta) + (K1 * rotation_x)
         last_y = K * (last_y + gyro_y_delta) + (K1 * rotation_y)
 
@@ -83,6 +87,7 @@ def wait(count, start_time, time_diff):
             return
 
 def format_row(row):
+    '''Creates a string with buffered white space using the passed in list'''
     margin = 10
     pretty_row = ''
     if type(row[0]).__name__ == "str": # Could also do a try catch here
