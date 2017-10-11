@@ -14,8 +14,8 @@ class MotorController:
             'D': 1
         }
 
-        self.current_motor_power = defaultdict(int)
-        self.req_motor_power = defaultdict(int) # Requested motor power
+        self.curr_pwr = defaultdict(int)
+        self.req_pwr = defaultdict(int) # Requested motor power
 
         self.pwm = Adafruit_PCA9685.PCA9685()
         self.freq = 50
@@ -39,15 +39,15 @@ class MotorController:
 
         # Calculate absolute motor power based on relative (absolute needs to be between 1.5-2.0)
         for channel in new_motor_power:
-            self.req_motor_power[channel] = ((new_motor_power[channel] + 1) / 4) + 1.5 # TODO Clean this up
+            self.req_pwr[channel] = ((new_motor_power[channel] + 1) / 4) + 1.5 # TODO Clean this up
 
     def set_motor(self, channel):
-        if not 1.0 <= self.req_motor_power[channel] <= 2.0: # Level should be between 1.0 and 2.0
-            print("Error in set motor, trying to set motor", channel, "to", self.req_motor_power[channel])
+        if not 1.0 <= self.req_pwr[channel] <= 2.0: # Level should be between 1.0 and 2.0
+            print("Error in set motor, trying to set motor", channel, "to", self.req_pwr[channel])
             return
-        if sufficiently_different(self.current_motor_power[channel], self.req_motor_power[channel]):
-            self.pwm.set_pwm(self.channel[channel], 0, int(calcTicks(self.freq, self.req_motor_power[channel])))
-            self.current_motor_power[channel] = self.req_motor_power[channel]
+        if sufficiently_different(self.curr_pwr[channel], self.req_pwr[channel]):
+            self.pwm.set_pwm(self.channel[channel], 0, int(calcTicks(self.freq, self.req_pwr[channel])))
+            self.curr_pwr[channel] = self.req_pwr[channel]
 
     def set_motors(self):
         for channel in 'ABCD':
@@ -55,7 +55,7 @@ class MotorController:
 
     def motors_off(self):
         for channel in 'ABCD':
-            self.req_motor_power[channel] = 1.0
+            self.req_pwr[channel] = 1.0
         self.set_motors()
 
 def sufficiently_different(c, r): # current, requested

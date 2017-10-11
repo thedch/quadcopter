@@ -15,7 +15,7 @@ logFile = open("log.txt", "w")
 
 def main():
     # Power management registers
-    power_mgmt_2 = 0x6c # TODO is this a useless line?
+    power_mgmt_2 = 0x6c # NOTE is this a useless line?
 
     header = ["count", "time", "rotX", "rotY", "lastX", "lastY", "gyroX", "gyroY", "motA", "motB", "motC", "motD"]
 
@@ -44,7 +44,7 @@ def main():
         wait(counter, start_time, time_diff)
         counter += 1
         if counter >= 300:
-            print(time.time() - start_time, counter)
+            # print(time.time() - start_time, counter)
             break
 
         # TODO: Put this all in a fxn
@@ -74,7 +74,7 @@ def main():
         motors.set_motors()
 
         # Log current data + header labels
-        log_variables = [counter, time.time() - start_time, rotation_x, rotation_y, last_x, last_y, gyro_x_delta, gyro_y_delta, motors.req_motor_power['A'], motors.req_motor_power['B'], motors.req_motor_power['C'], motors.req_motor_power['D']]
+        log_variables = [counter, time.time() - start_time, rotation_x, rotation_y, last_x, last_y, gyro_x_delta, gyro_y_delta, motors.req_pwr['A'], motors.req_pwr['B'], motors.req_pwr['C'], motors.req_pwr['D']]
         logFile.write(format_row(log_variables))
         if (counter % 15 == 0):
             logFile.write(format_row(header))
