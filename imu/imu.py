@@ -30,10 +30,13 @@ class IMU:
         accel_scaled_y = twos_compliment((raw_accel_data[2] << 8) + raw_accel_data[3]) / self.accel_scale
         accel_scaled_z = twos_compliment((raw_accel_data[4] << 8) + raw_accel_data[5]) / self.accel_scale
 
+        # print(accel_scaled_x, accel_scaled_y, accel_scaled_z)
+
         return (gyro_scaled_x, gyro_scaled_y, gyro_scaled_z, accel_scaled_x, accel_scaled_y, accel_scaled_z)
 
     def get_y_rotation(self, x, y, z):
         radians = math.atan2(x, dist(y,z))
+        print(x,y,x,-math.degrees(radians))
         return -math.degrees(radians)
 
     def get_x_rotation(self, x, y, z):
