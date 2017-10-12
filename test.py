@@ -58,22 +58,16 @@ def main():
         rot_x = imu.get_x_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
         rot_y = imu.get_y_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
 
+        motors.motors_off() # shut off motors to reset everything
         if rot_x > 0 and rot_y > 0:
-            motors.motors_off() # shut off motors to reset everything
             motors.req_pwr['B'] = 1.5 # set only one motor to be running
-            motors.set_motors()
         if rot_x < 0 and rot_y > 0:
-            motors.motors_off() # shut off motors to reset everything
             motors.req_pwr['A'] = 1.5 # set only one motor to be running
-            motors.set_motors()
         if rot_x > 0 and rot_y < 0:
-            motors.motors_off() # shut off motors to reset everything
             motors.req_pwr['C'] = 1.5 # set only one motor to be running
-            motors.set_motors()
         if rot_x < 0 and rot_y < 0:
-            motors.motors_off() # shut off motors to reset everything
             motors.req_pwr['D'] = 1.5 # set only one motor to be running
-            motors.set_motors()
+        motors.set_motors()
 
         # Log current data + header labels
         log_variables = [counter, time.time() - start_time, rot_x, rot_y, last_x, last_y, gyro_x_delta, gyro_y_delta, motors.req_pwr['A'], motors.req_pwr['B'], motors.req_pwr['C'], motors.req_pwr['D']]
