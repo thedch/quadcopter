@@ -36,7 +36,7 @@ class IMU:
 
     def get_y_rotation(self, x, y, z):
         radians = math.atan2(x, dist(y,z))
-        print(x,y,x,-math.degrees(radians))
+        # print(x,y,x,-math.degrees(radians))
         return -math.degrees(radians)
 
     def get_x_rotation(self, x, y, z):
