@@ -55,22 +55,28 @@ def main():
         gyro_total_x += gyro_x_delta
         gyro_total_y += gyro_y_delta
 
-        rotation_x = imu.get_x_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
-        rotation_y = imu.get_y_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
+        rot_x = imu.get_x_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
+        rot_y = imu.get_y_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
 
-        # manually remove bias from IMU data -- this is pretty dumb
-        rotation_x = rotation_x - 3.0
-        rotation_y = rotation_y + 4.7
-
-        last_x = K * (last_x + gyro_x_delta) + (K1 * rotation_x)
-        last_y = K * (last_y + gyro_y_delta) + (K1 * rotation_y)
-
-        # Set motors based on IMU data
-        motors.calculate_power(last_x, last_y)
-        motors.set_motors()
+        if rot_x > 0 and rot_y > 0:
+            motors.motors_off() # shut off motors to reset everything
+            motors.req_pwr['B'] = 1.5 # set only one motor to be running
+            motors.set_motors()
+        if rot_x < 0 and rot_y > 0:
+            motors.motors_off() # shut off motors to reset everything
+            motors.req_pwr['A'] = 1.5 # set only one motor to be running
+            motors.set_motors()
+        if rot_x > 0 and rot_y < 0:
+            motors.motors_off() # shut off motors to reset everything
+            motors.req_pwr['C'] = 1.5 # set only one motor to be running
+            motors.set_motors()
+        if rot_x < 0 and rot_y < 0:
+            motors.motors_off() # shut off motors to reset everything
+            motors.req_pwr['D'] = 1.5 # set only one motor to be running
+            motors.set_motors()
 
         # Log current data + header labels
-        log_variables = [counter, time.time() - start_time, rotation_x, rotation_y, last_x, last_y, gyro_x_delta, gyro_y_delta, motors.req_pwr['A'], motors.req_pwr['B'], motors.req_pwr['C'], motors.req_pwr['D']]
+        log_variables = [counter, time.time() - start_time, rot_x, rot_y, last_x, last_y, gyro_x_delta, gyro_y_delta, motors.req_pwr['A'], motors.req_pwr['B'], motors.req_pwr['C'], motors.req_pwr['D']]
         print(format_row(log_variables))
         if (counter % 10 == 0):
             print(format_row(header))
