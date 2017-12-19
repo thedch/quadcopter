@@ -80,7 +80,7 @@ def main():
             logFile.write(format_row(header))
 
 def wait(count, start_time, time_diff):
-    '''Used to force a set Hz sampling rate instead of as fast as possible. Will probably be removed eventually.'''
+    '''Used to force a set Hz sampling rate instead of as fast as possible.'''
     while True:
         if (time.time() - start_time) >= (time_diff * count):
             # print (time.time() - start_time, ",", count)
@@ -90,7 +90,7 @@ def format_row(row):
     '''Creates a string with buffered white space using the passed in list'''
     margin = 10
     pretty_row = ''
-    if type(row[0]).__name__ == "str": # Could also do a try catch here
+    if type(row[0]).__name__ == 'str': # Could also do a try catch here
         for item in row:
             pretty_row += ("{item: >{margin}} ").format(item=item, margin=margin)
     else:
