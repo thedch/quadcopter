@@ -1,4 +1,4 @@
-# First attempt at creating a highly naive flight controller, using a complementary filter
+# First attempt at creating a naive flight controller, using a complementary filter
 # Author: Daniel Hunter
 # Date: Sep 2 2017
 
@@ -28,14 +28,15 @@ def main():
     # Initial set up readings
     (gyro_scaled_x, gyro_scaled_y, gyro_scaled_z, accel_scaled_x, accel_scaled_y, accel_scaled_z) = imu.read_all()
 
-    last_x = imu.get_x_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
-    last_y = imu.get_y_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
-
+    # Create an offset that's used throughout the entire flight
     gyro_offset_x = gyro_scaled_x
     gyro_offset_y = gyro_scaled_y
 
-    gyro_total_x = (last_x) - gyro_offset_x
-    gyro_total_y = (last_y) - gyro_offset_y
+    gyro_total_x = last_x - gyro_offset_x
+    gyro_total_y = last_y - gyro_offset_y
+
+    last_x = imu.get_x_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
+    last_y = imu.get_y_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
 
     start_time = time.time()
 
@@ -62,7 +63,7 @@ def main():
         rotation_x = imu.get_x_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
         rotation_y = imu.get_y_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
 
-        # manually remove bias from IMU data -- this is pretty dumb
+        # Manually remove bias from IMU data -- this is pretty dumb
         rotation_x = rotation_x - 3.0
         rotation_y = rotation_y + 4.7
 
