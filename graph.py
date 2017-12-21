@@ -2,10 +2,15 @@
 
 import matplotlib.pyplot as plt
 import pandas as pd
+import sys
+
+if len(sys.argv) != 2:
+  print('Usage: python3 graph.py [column to graph]')
+  exit()
 
 # Set which column of data to graph -- currently only one variable at a time
 # is supported
-colToGraph = 'lastY'
+colToGraph = sys.argv[1]
 
 # Open the file, grab the column, close the file
 file = open('log.txt')
