@@ -20,8 +20,7 @@ def main():
     header = ["count", "time", "rotX", "rotY", "lastX", "lastY", "gyroX", "gyroY", "motA", "motB", "motC", "motD"]
     logFile.write(format_row(header))
 
-    K = 0.98
-    K1 = 1 - K
+    K = 0.98 # Represents how much to favor gyro over accel readings
 
     time_diff = 0.01 # Sample at 100 Hz
     counter = 0
@@ -65,12 +64,8 @@ def main():
         rotation_x = imu.get_x_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
         rotation_y = imu.get_y_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
 
-        # Manually remove bias from IMU data -- this is pretty dumb
-        rotation_x = rotation_x - 3.0
-        rotation_y = rotation_y + 4.7
-
-        last_x = K * (last_x + gyro_x_delta) + (K1 * rotation_x)
-        last_y = K * (last_y + gyro_y_delta) + (K1 * rotation_y)
+        last_x = K * (last_x + gyro_x_delta) + (1 - K) * rotation_x
+        last_y = K * (last_y + gyro_y_delta) + (1 - K) * rotation_y
 
         # Set motors based on IMU data
         motors.calculate_power(last_x, last_y)

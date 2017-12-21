@@ -6,20 +6,20 @@ import smbus
 import math
 import time
 from imu.imu import IMU
-from motors.motors import MotorController
 import signal
 
-motors = MotorController()
 imu = IMU()
+logFile = open("test-log.txt", "w")
 
 def main():
     # Power management registers
     # power_mgmt_2 = 0x6c # NOTE is this a useless line?
 
+    log_variables = [counter, time.time() - start_time, rot_x, rot_y, last_x, last_y, gyro_x_delta, gyro_y_delta, motors.req_pwr['A'], motors.req_pwr['B'], motors.req_pwr['C'], motors.req_pwr['D']]
     header = ["count", "time", "rotX", "rotY", "lastX", "lastY", "gyroX", "gyroY", "motA", "motB", "motC", "motD"]
+    logFile.write(format_row(header))
 
     K = 0.98
-    K1 = 1 - K
 
     time_diff = 0.25
     counter = 0
@@ -38,7 +38,7 @@ def main():
 
     start_time = time.time()
 
-    # Data loop and motor commands
+    # Data loop
     while True:
         wait(counter, start_time, time_diff)
         counter += 1
@@ -46,7 +46,6 @@ def main():
             motors.motors_off()
             break
 
-        # TODO: Put this all in a fxn
         (gyro_scaled_x, gyro_scaled_y, gyro_scaled_z, accel_scaled_x, accel_scaled_y, accel_scaled_z) = imu.read_all()
 
         gyro_scaled_x -= gyro_offset_x
@@ -61,18 +60,8 @@ def main():
         rot_x = imu.get_x_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
         rot_y = imu.get_y_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
 
-        motors.motors_off() # shut off motors to reset everything
-        motors.req_pwr['B'] = 1.1
-        motors.req_pwr['A'] = 1.1
-        motors.req_pwr['C'] = 1.1
-        motors.req_pwr['D'] = 1.1
-        motors.set_motors()
-
-        # Log current data + header labels
-        log_variables = [counter, time.time() - start_time, rot_x, rot_y, last_x, last_y, gyro_x_delta, gyro_y_delta, motors.req_pwr['A'], motors.req_pwr['B'], motors.req_pwr['C'], motors.req_pwr['D']]
-        print(format_row(log_variables))
-        if (counter % 10 == 0):
-            print(format_row(header))
+        # Log current data
+        logFile.write(format_row(log_variables))
 
 def wait(count, start_time, time_diff):
     '''Used to force a set Hz sampling rate instead of as fast as possible. Will probably be removed eventually.'''
@@ -95,7 +84,7 @@ def format_row(row):
 
 def signal_handler(signal, frame):
     '''Stops all motors and closes log file when Ctrl-C is pressed'''
-    motors.motors_off()
+    logFile.close()
     print("Stopped all motors, closed log file.")
     exit(0)
 

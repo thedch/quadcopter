@@ -14,7 +14,7 @@ class MotorController:
             'D': 1
         }
 
-        self.curr_pwr = defaultdict(int)
+        self.curr_pwr = defaultdict(int) # Current motor power
         self.req_pwr = defaultdict(int) # Requested motor power
 
         self.pwm = Adafruit_PCA9685.PCA9685()
