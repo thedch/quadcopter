@@ -6,6 +6,7 @@ import smbus
 import math
 import time
 from imu.imu import IMU
+import fly
 import signal
 
 imu = IMU()
@@ -40,7 +41,7 @@ def main():
 
     # Data loop
     while True:
-        wait(counter, start_time, time_diff)
+        fly.wait(counter, start_time, time_diff)
         counter += 1
         if counter > 5:
             motors.motors_off()
@@ -61,35 +62,14 @@ def main():
         rot_y = imu.get_y_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
 
         # Log current data
-        logFile.write(format_row(log_variables))
+        logFile.write(fly.format_row(log_variables))
 
-def wait(count, start_time, time_diff):
-    '''Used to force a set Hz sampling rate instead of as fast as possible. Will probably be removed eventually.'''
-    while True:
-        if (time.time() - start_time) >= (time_diff * count):
-            # print (time.time() - start_time, ",", count)
-            return
+# def signal_handler(signal, frame):
+#     '''Stops all motors and closes log file when Ctrl-C is pressed'''
+#     logFile.close()
+#     print("Stopped all motors, closed log file.")
+#     exit(0)
 
-def format_row(row):
-    '''Creates a string with buffered white space using the passed in list'''
-    margin = 10
-    pretty_row = ''
-    if type(row[0]).__name__ == "str": # Could also do a try catch here
-        for item in row:
-            pretty_row += ("{item: >{margin}} ").format(item=item, margin=margin)
-    else:
-        for item in row:
-            pretty_row += ("{item: >{margin}.2f} ").format(item=item, margin=margin)
-    return pretty_row
-
-def signal_handler(signal, frame):
-    '''Stops all motors and closes log file when Ctrl-C is pressed'''
-    logFile.close()
-    print("Stopped all motors, closed log file.")
-    exit(0)
-
-signal.signal(signal.SIGINT, signal_handler)
-
-if __name__ == '__main__':
+signal.signal(signal.SIGINT, fly.signal_handler)
     input("Press Enter to fly!")
     main()

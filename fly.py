@@ -5,12 +5,14 @@
 import smbus
 import math
 import time
-from imu.imu import IMU
-from motors.motors import MotorController
+from quad import Quadcopter
+# from imu.imu import IMU
+# from motors.motors import MotorController
 import signal
 
-motors = MotorController()
-imu = IMU()
+# motors = MotorController()
+# imu = IMU()
+quad = Quadcopter()
 logFile = open("log.txt", "w")
 
 def main():
@@ -19,6 +21,8 @@ def main():
 
     header = ["count", "time", "rotX", "rotY", "lastX", "lastY", "gyroX", "gyroY", "motA", "motB", "motC", "motD"]
     logFile.write(format_row(header))
+
+    log_variables = [counter, time.time() - start_time, rotation_x, rotation_y, last_x, last_y, gyro_x_delta, gyro_y_delta, motors.req_pwr['A'], motors.req_pwr['B'], motors.req_pwr['C'], motors.req_pwr['D']]
 
     K = 0.98 # Represents how much to favor gyro over accel readings
 
@@ -72,14 +76,12 @@ def main():
         motors.set_motors()
 
         # Log current data + header labels
-        log_variables = [counter, time.time() - start_time, rotation_x, rotation_y, last_x, last_y, gyro_x_delta, gyro_y_delta, motors.req_pwr['A'], motors.req_pwr['B'], motors.req_pwr['C'], motors.req_pwr['D']]
         logFile.write(format_row(log_variables))
 
 def wait(count, start_time, time_diff):
     '''Used to force a set Hz sampling rate instead of as fast as possible.'''
     while True:
         if (time.time() - start_time) >= (time_diff * count):
-            # print (time.time() - start_time, ",", count)
             return
 
 def format_row(row):
