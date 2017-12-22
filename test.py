@@ -42,6 +42,9 @@ def main():
     while True:
         wait(counter, start_time, time_diff)
         counter += 1
+        if counter > 5:
+            motors.motors_off()
+            break
 
         # TODO: Put this all in a fxn
         (gyro_scaled_x, gyro_scaled_y, gyro_scaled_z, accel_scaled_x, accel_scaled_y, accel_scaled_z) = imu.read_all()
@@ -59,14 +62,10 @@ def main():
         rot_y = imu.get_y_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
 
         motors.motors_off() # shut off motors to reset everything
-        if rot_x > 0 and rot_y > 0:
-            motors.req_pwr['B'] = 1.5 # set only one motor to be running
-        if rot_x < 0 and rot_y > 0:
-            motors.req_pwr['A'] = 1.5 # set only one motor to be running
-        if rot_x > 0 and rot_y < 0:
-            motors.req_pwr['C'] = 1.5 # set only one motor to be running
-        if rot_x < 0 and rot_y < 0:
-            motors.req_pwr['D'] = 1.5 # set only one motor to be running
+        motors.req_pwr['B'] = 1.1
+        motors.req_pwr['A'] = 1.1
+        motors.req_pwr['C'] = 1.1
+        motors.req_pwr['D'] = 1.1
         motors.set_motors()
 
         # Log current data + header labels

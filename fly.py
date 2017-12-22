@@ -18,6 +18,7 @@ def main():
     power_mgmt_2 = 0x6c # NOTE is this a useless line?
 
     header = ["count", "time", "rotX", "rotY", "lastX", "lastY", "gyroX", "gyroY", "motA", "motB", "motC", "motD"]
+    logFile.write(format_row(header))
 
     K = 0.98
     K1 = 1 - K
@@ -44,8 +45,9 @@ def main():
     while True:
         wait(counter, start_time, time_diff)
         counter += 1
-        if counter >= 300:
+        if counter >= 100:
             # print(time.time() - start_time, counter)
+            motors.motors_off()
             break
 
         # TODO: Put this all in a fxn
@@ -77,8 +79,6 @@ def main():
         # Log current data + header labels
         log_variables = [counter, time.time() - start_time, rotation_x, rotation_y, last_x, last_y, gyro_x_delta, gyro_y_delta, motors.req_pwr['A'], motors.req_pwr['B'], motors.req_pwr['C'], motors.req_pwr['D']]
         logFile.write(format_row(log_variables))
-        if (counter % 15 == 0):
-            logFile.write(format_row(header))
 
 def wait(count, start_time, time_diff):
     '''Used to force a set Hz sampling rate instead of as fast as possible.'''
