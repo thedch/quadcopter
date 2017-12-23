@@ -10,23 +10,22 @@ import signal
 
 quad = Quadcopter()
 num_cycles = 100
-counter = 0
 
 def main():
     # Power management registers
-    # power_mgmt_2 = 0x6c # NOTE is this a useless line?
+    power_mgmt_2 = 0x6c # NOTE is this a useless line?
 
     # Write the initial column names to the telemetry log
-    quad.log_file.write(format_row(quad.header))
+    quad.log_file.write(quad.format_row(quad.header))
 
     # Initial set up readings
     quad.imu.take_initial_readings()
 
     # Data loop and motor commands
     while True:
-        quad.wait(counter, start_time)
-        counter += 1
-        if counter > num_cycles:
+        quad.wait(quad.start_time)
+        quad.counter += 1
+        if quad.counter > num_cycles:
             break
 
         quad.imu.take_continuous_readings()

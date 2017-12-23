@@ -21,7 +21,7 @@ class MotorController:
         self.freq = 50
         self.pwm.set_pwm_freq(self.freq)
 
-        self.motors_off() # Initialize motors to off
+        self.off() # Initialize motors to off
 
     def calculate_power(self, xAngle, yAngle):
         # Calculate relative desired motor power based on angle imbalance

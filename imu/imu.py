@@ -56,12 +56,12 @@ class IMU:
         self.gyro_offset_y = self.gyro_scaled_y
 
         # Update the gyro totals
-        self.gyro_total_x = self.last_x - gyro_offset_x
-        self.gyro_total_y = self.last_y - gyro_offset_y
+        self.gyro_total_x = self.last_x - self.gyro_offset_x
+        self.gyro_total_y = self.last_y - self.gyro_offset_y
 
         # Set the initial last_x and last_y values
-        self.last_x = imu.get_x_rotation(self.accel_scaled_x, self.accel_scaled_y, self.accel_scaled_z)
-        self.last_y = imu.get_y_rotation(self.accel_scaled_x, self.accel_scaled_y, self.accel_scaled_z)
+        self.last_x = self.get_x_rotation(self.accel_scaled_x, self.accel_scaled_y, self.accel_scaled_z)
+        self.last_y = self.get_y_rotation(self.accel_scaled_x, self.accel_scaled_y, self.accel_scaled_z)
 
     def take_continuous_readings(self):
         self.read_all()
@@ -75,11 +75,11 @@ class IMU:
         self.gyro_total_x += gyro_x_delta
         self.gyro_total_y += gyro_y_delta
 
-        rotation_x = self.get_x_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
-        rotation_y = self.get_y_rotation(accel_scaled_x, accel_scaled_y, accel_scaled_z)
+        rotation_x = self.get_x_rotation(self.accel_scaled_x, self.accel_scaled_y, self.accel_scaled_z)
+        rotation_y = self.get_y_rotation(self.accel_scaled_x, self.accel_scaled_y, self.accel_scaled_z)
 
-        self.last_x = self.K * (self.last_x + self.gyro_x_delta) + (1 - quad.K) * rotation_x
-        self.last_y = self.K * (self.last_y + self.gyro_y_delta) + (1 - quad.K) * rotation_y
+        self.last_x = self.K * (self.last_x + gyro_x_delta) + (1 - self.K) * rotation_x
+        self.last_y = self.K * (self.last_y + gyro_y_delta) + (1 - self.K) * rotation_y
 
     def get_y_rotation(self, x, y, z):
         radians = math.atan2(x, dist(y,z))

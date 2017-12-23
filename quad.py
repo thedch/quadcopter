@@ -10,15 +10,16 @@ class Quadcopter:
     self.log_file = open("log.txt", "w")
 
     self.start_time = time.time()
+    self.counter = 0
 
-    self.log_variables = [counter, time.time() - start_time, self.imu.last_x, self.imu.last_y, self.imu.gyro_total_x, self.imu.gyro_total_y]
+    self.log_variables = [self.counter, time.time() - self.start_time, self.imu.last_x, self.imu.last_y, self.imu.gyro_total_x, self.imu.gyro_total_y]
     self.header = ["count", "time", "lastX", "lastY", "gyroX", "gyroY"]
 
-  def wait(self, counter, start_time):
+  def wait(self, start_time):
     '''Used to force a set Hz sampling rate instead of as fast as possible.'''
     time_diff = 1 / self.sample_hz
     while True:
-        if (time.time() - start_time) >= (time_diff * counter):
+        if (time.time() - start_time) >= (time_diff * self.counter):
             return
 
   def end_flight(self):
