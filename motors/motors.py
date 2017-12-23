@@ -53,7 +53,7 @@ class MotorController:
         for channel in 'ABCD':
             self.set_motor(channel)
 
-    def motors_off(self):
+    def off(self):
         for channel in 'ABCD':
             self.req_pwr[channel] = 1.0
         self.set_motors()
