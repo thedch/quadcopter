@@ -1,38 +1,78 @@
 import cv2
 import numpy as np
-
-# filename = 'images/image0.jpg'
-# filename = 'chessboard.jpg'
-filename = 'simple.jpg'
-img = cv2.imread(filename)
-gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-
-gray = np.float32(gray)
-dst = cv2.cornerHarris(gray,2,3,0.04) # image, blockSize, kernel size, k
+from sklearn.cluster import KMeans
 
 
-# result is dilated for marking the corners, not important
-dst = cv2.dilate(dst,None)
-cv2.imshow('Image Title Goes Here', dst)
+def prep_image(image):
+    gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+    gray = np.float32(gray)
+    return gray
 
-# Create a binary for findNonZero
-# retval, thresh = cv2.threshold(dst, thresh=100, maxval=1, type=cv2.THRESH_BINARY)
-# print(type(retval))
-# print(type(thresh))
-# print(sum(sum(dst)))
+def detect_corners(image):
+    dst = cv2.cornerHarris(image,2,3,0.04) # image, blockSize, kernel size, k
+    # result is dilated for marking the corners, not important
+    dst = cv2.dilate(dst, None)
+    return dst
 
-# test = np.array([0,0,0,0,1])
+def classify_corners(image):
+    x, y = np.nonzero(image) # TODO: Use row, col instead of x, y
+    combined = np.array([x,y])
+    combined_reshaped = np.reshape(combined, (len(x),-1))
+    return combined_reshaped
 
-x, y = np.nonzero(dst)
-for i, x in enumerate(x):
-    print(x,y)
+    kmeans = KMeans(n_clusters = 4).fit(combined_reshaped)
+    print(kmeans.cluster_centers_)
+    # cv2.imshow('Image Title Goes Here', image)
 
-if cv2.waitKey(0) & 0xff == 27:
-    cv2.destroyAllWindows()
+def main(image):
+    log_file = open("log.txt", "w")
 
-# Threshold for an optimal value, it may vary depending on the image.
-# img[dst > 0.01 * dst.max()] = [0,0,255]
+    prepped_image = prep_image(image)
+    corners = detect_corners(prepped_image)
+    # print(corners)
+
+    # image[corners > 0.01 * corners.max()] = [0,0,255] # Threshold for an optimal value, it may vary depending on the image.
+
+    # data = classify_corners(corners)
+
+    print(corners[362][641])
+
+    for i, row in enumerate(corners):
+        for j, pixel in enumerate(row):
+            if pixel > 0.01:
+                # print(i, j)
+                log_file.write(str(i) + ' ' + str(j) + '\n')
+    log_file.close()
 
 
-# https://code.ros.org/trac/opencv/browser/trunk/opencv/modules/core/include/opencv2/core/types_c.h?rev=3837
-# CV_8UC1
+
+    # cv2.imshow('Image Title Goes Here', corners)
+    cv2.imwrite('image.jpg', corners)
+
+
+    # print(len(x))
+    # print(x)
+    # print(len(y))
+    # print(y)
+
+    # counter = 0
+    # for coord in x:
+    #     if coord > 200:
+    #         counter = counter + 1
+    # print(counter, 3347 - counter)
+
+    # counter = 0
+    # for coord in y:
+    #     if coord > 500:
+    #         counter = counter + 1
+    # print(counter, 3347 - counter)
+
+    if cv2.waitKey(0) & 0xff == 27:
+        cv2.destroyAllWindows()
+
+if __name__ == '__main__':
+    # filename = 'images/image0.jpg'
+    # filename = 'chessboard.jpg'
+    filename = 'simple.jpg'
+    image = cv2.imread(filename)
+    main(image)
